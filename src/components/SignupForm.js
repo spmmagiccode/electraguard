@@ -29,7 +29,7 @@ const SignupForm = () => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       setSuccess(true);
-      navigate("/socket"); // ✅ Redirect after successful signup
+      navigate("/SocketView"); // ✅ Redirect after successful signup
     } catch (err) {
       setError(err.message);
     }

@@ -22,7 +22,7 @@ const LoginForm = () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       setSuccess(true);
-      navigate("/socket");
+      navigate("/SocketView");
     } catch (err) {
       setError(err.message);
     }

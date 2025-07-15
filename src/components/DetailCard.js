@@ -1,21 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
 import { Box, Typography, Paper, Divider } from "@mui/material";
 
-const ToggleWithData = ({ data }) => {
-  const [isOn, setIsOn] = useState(false);
-
+const ToggleWithData = ({ data, pinId, switchValue, onToggle }) => {
   const toggle = () => {
-    setIsOn((prev) => !prev);
+    onToggle(pinId, switchValue === 0 ? 1 : 0);
   };
 
   return (
     <Box
       sx={{
-        width: 220, // increased width
+        width: 220,
         margin: "50px auto",
         p: 3,
-        boxShadow: 6, // stronger shadow
-        borderRadius: 4, // smoother corners
+        boxShadow: 6,
+        borderRadius: 4,
         backgroundColor: "#fefefe",
         fontFamily: "'Roboto', sans-serif",
         transition: "all 0.3s ease-in-out",
@@ -32,7 +30,7 @@ const ToggleWithData = ({ data }) => {
           letterSpacing: 1,
         }}
       >
-        Device Monitor
+        Device {pinId}
       </Typography>
 
       {/* Toggle row */}
@@ -55,7 +53,7 @@ const ToggleWithData = ({ data }) => {
             width: 60,
             height: 30,
             borderRadius: 15,
-            backgroundColor: isOn ? "#1976d2" : "#ccc",
+            backgroundColor: switchValue === 1 ? "#1976d2" : "#ccc",
             transition: "background-color 0.3s",
           }}
         >
@@ -63,7 +61,7 @@ const ToggleWithData = ({ data }) => {
             sx={{
               position: "absolute",
               top: 3,
-              left: isOn ? 33 : 3,
+              left: switchValue === 1 ? 33 : 3,
               width: 24,
               height: 24,
               borderRadius: "50%",
@@ -76,7 +74,7 @@ const ToggleWithData = ({ data }) => {
         {/* Label */}
         <Typography
           sx={{
-            color: isOn ? "#1976d2" : "#888",
+            color: switchValue === 1 ? "#1976d2" : "#888",
             fontWeight: "bold",
             fontSize: 16,
           }}
