@@ -1,4 +1,4 @@
-import { Grid, Container } from "@mui/material";
+import { Box } from "@mui/material";
 import ToggleWithData from "../components/DetailCard";
 import { useEffect, useState } from "react";
 import { db } from "../firebase";
@@ -27,30 +27,38 @@ const SocketViewPage = () => {
   };
 
   if (!switchStates) {
-    return <p style={{ textAlign: "center" }}>Loading switch states...</p>;
+    return <p style={{ textAlign: "center", color: "#fff" }}>Loading switch states...</p>;
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Grid container spacing={3} justifyContent="center">
-        {Object.entries(switchStates).map(([pinId, value], index) => (
-          <Grid item key={pinId} xs={12} sm={6} md={3} sx={{ display: "flex", justifyContent: "center" }}>
-            <ToggleWithData
-              data={{
-                id: pinId,
-                power: `${1000 + index * 100} W`,
-                current: `${10 + index} A`,
-                voltage: `${220 + (index % 3) * 5} V`,
-                alarm: index % 3 === 0 ? "No alarm" : index % 3 === 1 ? "Warning" : "Critical",
-              }}
-              pinId={pinId}
-              switchValue={value}
-              onToggle={handleToggle}
-            />
-          </Grid>
-        ))}
-      </Grid>
-    </Container>
+    <Box
+      sx={{
+        mt: 6,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        flexWrap: "nowrap", // Keep them in a single row
+        gap: 3,
+        px: 2,
+      }}
+    >
+      {Object.entries(switchStates).map(([pinId, value], index) => (
+        <Box key={pinId} sx={{ flex: "0 0 auto" }}>
+          <ToggleWithData
+            data={{
+              id: pinId,
+              power: `${1000 + index * 100} W`,
+              current: `${10 + index} A`,
+              voltage: `${220 + (index % 3) * 5} V`,
+              alarm: index % 3 === 0 ? "No alarm" : index % 3 === 1 ? "Warning" : "Critical",
+            }}
+            pinId={pinId}
+            switchValue={value}
+            onToggle={handleToggle}
+          />
+        </Box>
+      ))}
+    </Box>
   );
 };
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Box, TextField, Button, Typography, Alert } from "@mui/material";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth } from "../firebase";  // Make sure your firebase config exports `auth`
 import { useNavigate } from "react-router-dom";
 
 const SignupForm = () => {
@@ -29,7 +29,8 @@ const SignupForm = () => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       setSuccess(true);
-      navigate("/SocketView"); // ✅ Redirect after successful signup
+      // Navigate to /SocketView after signup success
+      navigate("/SocketView");
     } catch (err) {
       setError(err.message);
     }
@@ -44,13 +45,28 @@ const SignupForm = () => {
       sx={{
         maxWidth: 400,
         margin: "60px auto",
-        padding: 3,
-        boxShadow: 3,
-        borderRadius: 2,
-        backgroundColor: "#fff",
+        padding: 4,
+        borderRadius: 3,
+        background: "linear-gradient(145deg, #121212, #0d0d0d)",
+        boxShadow: "0 0 20px rgba(0, 255, 255, 0.25), inset 0 0 10px #000",
+        fontFamily: "'Orbitron', sans-serif",
+        color: "#00f0ff",
+        textShadow: "0 0 5px #00f0ff",
       }}
     >
-      <Typography variant="h5" align="center" gutterBottom>
+      <Typography
+        variant="h4"
+        align="center"
+        gutterBottom
+        sx={{
+          fontWeight: 700,
+          color: "#00f0ff",
+          textShadow: "0 0 12px #00f0ff",
+          letterSpacing: 2,
+          mb: 3,
+          fontFamily: "'Orbitron', sans-serif",
+        }}
+      >
         Signup
       </Typography>
 
@@ -63,6 +79,28 @@ const SignupForm = () => {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
+        InputLabelProps={{
+          sx: { color: "#00f0ff", fontFamily: "'Orbitron', sans-serif" },
+        }}
+        InputProps={{
+          sx: { color: "#00f0ff", fontFamily: "'Orbitron', sans-serif" },
+        }}
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            fontFamily: "'Orbitron', sans-serif",
+            "& fieldset": {
+              borderColor: "#00f0ff",
+            },
+            "&:hover fieldset": {
+              borderColor: "#66ffff",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "#00f0ff",
+              boxShadow: "0 0 12px #00f0ff",
+            },
+          },
+          mb: 2,
+        }}
       />
 
       <TextField
@@ -74,6 +112,28 @@ const SignupForm = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
+        InputLabelProps={{
+          sx: { color: "#00f0ff", fontFamily: "'Orbitron', sans-serif" },
+        }}
+        InputProps={{
+          sx: { color: "#00f0ff", fontFamily: "'Orbitron', sans-serif" },
+        }}
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            fontFamily: "'Orbitron', sans-serif",
+            "& fieldset": {
+              borderColor: "#00f0ff",
+            },
+            "&:hover fieldset": {
+              borderColor: "#66ffff",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "#00f0ff",
+              boxShadow: "0 0 12px #00f0ff",
+            },
+          },
+          mb: 2,
+        }}
       />
 
       <TextField
@@ -85,27 +145,82 @@ const SignupForm = () => {
         value={confirm}
         onChange={(e) => setConfirm(e.target.value)}
         required
+        InputLabelProps={{
+          sx: { color: "#00f0ff", fontFamily: "'Orbitron', sans-serif" },
+        }}
+        InputProps={{
+          sx: { color: "#00f0ff", fontFamily: "'Orbitron', sans-serif" },
+        }}
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            fontFamily: "'Orbitron', sans-serif",
+            "& fieldset": {
+              borderColor: "#00f0ff",
+            },
+            "&:hover fieldset": {
+              borderColor: "#66ffff",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "#00f0ff",
+              boxShadow: "0 0 12px #00f0ff",
+            },
+          },
+          mb: 3,
+        }}
       />
 
       <Button
         type="submit"
         variant="contained"
-        color="primary"
         fullWidth
         disabled={isLoading}
-        sx={{ mt: 2 }}
+        sx={{
+          backgroundColor: "#00f0ff",
+          color: "#000",
+          fontWeight: "bold",
+          fontSize: 18,
+          py: 1.5,
+          boxShadow: "0 0 15px #00f0ff",
+          letterSpacing: 1,
+          fontFamily: "'Orbitron', sans-serif",
+          "&:hover": {
+            backgroundColor: "#66ffff",
+            boxShadow: "0 0 20px #66ffff",
+          },
+        }}
       >
         {isLoading ? "Signing up..." : "Sign Up"}
       </Button>
 
       {error && (
-        <Alert severity="error" sx={{ mt: 2 }}>
+        <Alert
+          severity="error"
+          sx={{
+            mt: 3,
+            fontFamily: "'Orbitron', sans-serif",
+            fontWeight: 600,
+            fontSize: 16,
+            textShadow: "none",
+          }}
+        >
           {error}
         </Alert>
       )}
 
       {success && (
-        <Alert severity="success" sx={{ mt: 2 }}>
+        <Alert
+          severity="success"
+          sx={{
+            mt: 3,
+            fontFamily: "'Orbitron', sans-serif",
+            fontWeight: 600,
+            fontSize: 16,
+            color: "#00f0ff",
+            backgroundColor: "rgba(0, 255, 255, 0.1)",
+            border: "1px solid #00f0ff",
+            textShadow: "0 0 8px #00f0ff",
+          }}
+        >
           Signup successful!
         </Alert>
       )}

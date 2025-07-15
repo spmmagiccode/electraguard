@@ -36,14 +36,29 @@ const LoginForm = () => {
       onSubmit={handleSubmit}
       sx={{
         maxWidth: 400,
-        margin: "60px auto",
-        padding: 3,
-        boxShadow: 3,
-        borderRadius: 2,
-        backgroundColor: "#fff",
+        margin: "80px auto",
+        padding: 4,
+        borderRadius: 4,
+        background: "rgba(0, 0, 0, 0.6)",
+        backdropFilter: "blur(10px)",
+        boxShadow: "0 0 20px rgba(0,255,255,0.1)",
+        fontFamily: "'Orbitron', sans-serif",
+        color: "#fff",
+        textShadow: "0 0 5px #00f0ff",
       }}
     >
-      <Typography variant="h5" align="center" gutterBottom>
+      <Typography
+        variant="h5"
+        align="center"
+        gutterBottom
+        sx={{
+          color: "#00f0ff",
+          textShadow: "0 0 12px #00f0ff",
+          fontWeight: 700,
+          letterSpacing: 2,
+          fontFamily: "'Orbitron', sans-serif",
+        }}
+      >
         Login
       </Typography>
 
@@ -56,6 +71,33 @@ const LoginForm = () => {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
+        InputProps={{
+          sx: {
+            color: "#00f0ff",
+            fontFamily: "'Orbitron', sans-serif",
+          },
+        }}
+        InputLabelProps={{
+          sx: {
+            color: "#00f0ff",
+            fontFamily: "'Orbitron', sans-serif",
+          },
+        }}
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            fontFamily: "'Orbitron', sans-serif",
+            "& fieldset": {
+              borderColor: "#00f0ff",
+            },
+            "&:hover fieldset": {
+              borderColor: "#00f0ff",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "#00f0ff",
+              boxShadow: "0 0 12px #00f0ff",
+            },
+          },
+        }}
       />
 
       <TextField
@@ -67,27 +109,84 @@ const LoginForm = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
+        InputProps={{
+          sx: {
+            color: "#00f0ff",
+            fontFamily: "'Orbitron', sans-serif",
+          },
+        }}
+        InputLabelProps={{
+          sx: {
+            color: "#00f0ff",
+            fontFamily: "'Orbitron', sans-serif",
+          },
+        }}
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            fontFamily: "'Orbitron', sans-serif",
+            "& fieldset": {
+              borderColor: "#00f0ff",
+            },
+            "&:hover fieldset": {
+              borderColor: "#00f0ff",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "#00f0ff",
+              boxShadow: "0 0 12px #00f0ff",
+            },
+          },
+        }}
       />
 
       <Button
         type="submit"
         variant="contained"
-        color="primary"
         fullWidth
         disabled={isLoading}
-        sx={{ mt: 2 }}
+        sx={{
+          mt: 3,
+          backgroundColor: "#00f0ff",
+          color: "#000",
+          fontWeight: "bold",
+          fontFamily: "'Orbitron', sans-serif",
+          fontSize: 18,
+          boxShadow: "0 0 20px #00f0ff",
+          letterSpacing: 1,
+          "&:hover": {
+            backgroundColor: "#00d6e6",
+            boxShadow: "0 0 25px #00f0ff",
+          },
+        }}
       >
         {isLoading ? "Logging in..." : "Log In"}
       </Button>
 
       {error && (
-        <Alert severity="error" sx={{ mt: 2 }}>
+        <Alert
+          severity="error"
+          sx={{
+            mt: 2,
+            fontFamily: "'Orbitron', sans-serif",
+            fontWeight: "bold",
+            letterSpacing: 1,
+            textShadow: "none",
+          }}
+        >
           {error}
         </Alert>
       )}
 
       {success && (
-        <Alert severity="success" sx={{ mt: 2 }}>
+        <Alert
+          severity="success"
+          sx={{
+            mt: 2,
+            fontFamily: "'Orbitron', sans-serif",
+            fontWeight: "bold",
+            letterSpacing: 1,
+            textShadow: "none",
+          }}
+        >
           Login successful!
         </Alert>
       )}

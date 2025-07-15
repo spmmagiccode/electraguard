@@ -6,130 +6,179 @@ const ToggleWithData = ({ data, pinId, switchValue, onToggle }) => {
     onToggle(pinId, switchValue === 0 ? 1 : 0);
   };
 
+  const hasAlarm = data.alarm !== "No alarm";
+
   return (
     <Box
       sx={{
-        width: 220,
-        margin: "50px auto",
-        p: 3,
-        boxShadow: 6,
-        borderRadius: 4,
-        backgroundColor: "#fefefe",
-        fontFamily: "'Roboto', sans-serif",
+        width: 240,
+        p: 2.5,
+        borderRadius: 3,
+        background: hasAlarm
+          ? "linear-gradient(145deg, #1a0000, #330000)"
+          : "linear-gradient(145deg, #111, #1a1a1a)",
+        boxShadow: hasAlarm
+          ? "0 0 20px rgba(255, 0, 0, 0.3), inset 0 0 10px rgba(100, 0, 0, 0.5)"
+          : "0 0 20px rgba(0,255,255,0.12), inset 0 0 10px rgba(0,0,0,0.6)",
+        fontFamily: "'Orbitron', sans-serif",
+        color: "#fff",
         transition: "all 0.3s ease-in-out",
+        ":hover": {
+          transform: "scale(1.03)",
+        },
       }}
     >
-      {/* Title */}
       <Typography
         variant="h6"
         sx={{
-          fontWeight: 600,
+          fontWeight: 700,
           textAlign: "center",
-          mb: 3,
-          color: "#333",
+          mb: 2,
+          color: hasAlarm ? "#ff4d4d" : "#00f0ff",
+          textShadow: hasAlarm
+            ? "0 0 10px #ff4d4d"
+            : "0 0 10px #00f0ff",
           letterSpacing: 1,
+          fontFamily: "'Orbitron', sans-serif",
         }}
       >
-        Device {pinId}
+        DEVICE {pinId}
       </Typography>
 
-      {/* Toggle row */}
+      {/* Toggle */}
       <Box
+        onClick={toggle}
         sx={{
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          gap: 2,
-          mb: 3,
+          gap: 1.5,
+          mb: 2.5,
           cursor: "pointer",
           userSelect: "none",
+          fontFamily: "'Orbitron', sans-serif",
         }}
-        onClick={toggle}
       >
-        {/* Toggle switch */}
         <Box
           sx={{
             position: "relative",
             width: 60,
             height: 30,
             borderRadius: 15,
-            backgroundColor: switchValue === 1 ? "#1976d2" : "#ccc",
-            transition: "background-color 0.3s",
+            backgroundColor: switchValue === 1 ? "#00f0ff" : "#444",
+            transition: "all 0.4s",
+            boxShadow:
+              switchValue === 1
+                ? "0 0 10px #00f0ff"
+                : "inset 0 0 6px #000",
           }}
         >
           <Box
             sx={{
               position: "absolute",
-              top: 3,
-              left: switchValue === 1 ? 33 : 3,
-              width: 24,
-              height: 24,
+              top: 2.5,
+              left: switchValue === 1 ? 32 : 2.5,
+              width: 25,
+              height: 25,
               borderRadius: "50%",
-              backgroundColor: "#fff",
-              transition: "left 0.3s",
+              backgroundColor: "#111",
+              boxShadow: "0 0 6px #00f0ff",
+              transition: "left 0.3s ease",
             }}
           />
         </Box>
-
-        {/* Label */}
         <Typography
           sx={{
-            color: switchValue === 1 ? "#1976d2" : "#888",
+            fontSize: 14,
             fontWeight: "bold",
-            fontSize: 16,
+            color: switchValue === 1 ? "#00f0ff" : "#777",
+            fontFamily: "'Orbitron', sans-serif",
           }}
         >
-          On
+          {switchValue === 1 ? "ON" : "OFF"}
         </Typography>
       </Box>
 
-      <Divider sx={{ mb: 3 }} />
+      <Divider
+        sx={{
+          mb: 2,
+          backgroundColor: hasAlarm ? "#ff4d4d" : "#00f0ff",
+          height: 2,
+          borderRadius: 1,
+        }}
+      />
 
-      {/* Data display */}
+      {/* Data Display */}
       <Paper
         elevation={0}
         sx={{
           p: 2,
-          backgroundColor: "#f9f9f9",
           borderRadius: 2,
+          backgroundColor: "rgba(0, 0, 0, 0.4)",
+          backdropFilter: "blur(6px)",
+          border: hasAlarm
+            ? "1px solid rgba(255, 0, 0, 0.3)"
+            : "1px solid rgba(0,255,255,0.2)",
+          boxShadow: hasAlarm
+            ? "0 0 10px rgba(255, 0, 0, 0.3)"
+            : "0 0 10px rgba(0,255,255,0.1)",
+          fontFamily: "'Orbitron', sans-serif",
+          color: "#fff",
         }}
       >
         <Typography
-          variant="h4"
-          sx={{ fontWeight: "bold", mb: 2, color: "#1976d2" }}
+          variant="h5"
+          sx={{
+            textAlign: "center",
+            fontWeight: 700,
+            mb: 2,
+            color: hasAlarm ? "#ff4d4d" : "#00f0ff",
+            textShadow: `0 0 6px ${hasAlarm ? "#ff4d4d" : "#00f0ff"}`,
+            fontFamily: "'Orbitron', sans-serif",
+          }}
         >
           {data.power}
         </Typography>
 
-        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-          <Typography variant="body1" sx={{ fontWeight: 500, color: "#444" }}>
-            Current
-          </Typography>
-          <Typography variant="body1" sx={{ color: "#666" }}>
-            {data.current}
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-          <Typography variant="body1" sx={{ fontWeight: 500, color: "#444" }}>
-            Voltage
-          </Typography>
-          <Typography variant="body1" sx={{ color: "#666" }}>
-            {data.voltage}
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Typography variant="body1" sx={{ fontWeight: 500, color: "#444" }}>
-            Alarm
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{ color: data.alarm !== "No alarm" ? "red" : "#666" }}
+        {[  
+          { label: "Current", value: data.current },
+          { label: "Voltage", value: data.voltage },
+          { label: "Alarm", value: data.alarm },
+        ].map(({ label, value }, i) => (
+          <Box
+            key={i}
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              mb: i < 2 ? 1.2 : 0,
+              color:
+                label === "Alarm" && hasAlarm ? "#ff4d4d" : "#ccc",
+              fontFamily: "'Orbitron', sans-serif",
+            }}
           >
-            {data.alarm}
-          </Typography>
-        </Box>
+            <Typography
+              component="span"
+              sx={{
+                fontWeight: 600,
+                fontSize: 14,
+                letterSpacing: 0.5,
+                fontFamily: "'Orbitron', sans-serif",
+              }}
+            >
+              {label}
+            </Typography>
+            <Typography
+              component="span"
+              sx={{
+                fontSize: 14,
+                letterSpacing: 0.5,
+                fontFamily: "'Orbitron', sans-serif",
+              }}
+            >
+              {value}
+            </Typography>
+          </Box>
+        ))}
       </Paper>
     </Box>
   );

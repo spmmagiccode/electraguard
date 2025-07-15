@@ -23,7 +23,7 @@ const Navbar = () => {
       setUser(currentUser);
     });
 
-    return () => unsubscribe(); // Cleanup
+    return () => unsubscribe();
   }, []);
 
   const handleLogout = async () => {
@@ -46,19 +46,52 @@ const Navbar = () => {
   return (
     <AppBar
       position="static"
-      elevation={4}
-      sx={{ backgroundColor: "#000", height: "80px", justifyContent: "center" }}
+      sx={{
+        background: "rgba(0,0,0,0.8)",
+        backdropFilter: "blur(8px)",
+        boxShadow: "0 0 25px rgba(0,255,255,0.25)",
+        height: "100px",
+        fontFamily: "'Orbitron', sans-serif",
+      }}
     >
-      <Container maxWidth="xl" disableGutters>
+      {/* Remove horizontal padding by not using disableGutters and set px=0 */}
+      <Container maxWidth="xl" sx={{ px: 0 }}>
         <Toolbar
           sx={{
             justifyContent: "space-between",
-            px: 4,
-            minHeight: "80px !important",
+            px: 0, // remove horizontal padding here
+            minHeight: "100px !important",
+            fontFamily: "'Orbitron', sans-serif",
           }}
         >
-          {/* Left - Navigation Links */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          {/* 🔵 Logo & Navigation */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
+            {/* Logo */}
+            <Box
+              component={RouterLink}
+              to="/"
+              sx={{ display: "flex", alignItems: "center", textDecoration: "none" }}
+            >
+              <img
+                src="/logo.png"
+                alt="Logo"
+                style={{ width: 56, height: 56, marginRight: 12 }}
+              />
+              <Typography
+                variant="h6" // smaller heading than h5
+                sx={{
+                  color: "#00f0ff",
+                  fontWeight: "bold",
+                  letterSpacing: 1.5,
+                  textShadow: "0 0 8px #00f0ff",
+                  fontFamily: "'Orbitron', sans-serif",
+                }}
+              >
+                ElectraGuard
+              </Typography>
+            </Box>
+
+            {/* Navigation Links */}
             {user &&
               links.map(({ label, path }) => (
                 <Button
@@ -67,12 +100,31 @@ const Navbar = () => {
                   to={path}
                   sx={{
                     textTransform: "none",
-                    color: "#fff",
+                    fontSize: 16, // smaller font size
+                    color: "#00f0ff",
                     fontWeight: currentPath === path ? "bold" : "normal",
-                    borderBottom:
-                      currentPath === path ? "2px solid #FFD700" : "none",
-                    borderRadius: 0,
-                    "&:hover": { color: "#fff" },
+                    position: "relative",
+                    px: 1, // reduce horizontal padding
+                    fontFamily: "'Orbitron', sans-serif",
+                    "&::after": {
+                      content: '""',
+                      position: "absolute",
+                      bottom: -6,
+                      left: 0,
+                      width: "100%",
+                      height: "3px",
+                      backgroundColor:
+                        currentPath === path ? "#FFD700" : "transparent",
+                      boxShadow:
+                        currentPath === path
+                          ? "0 0 10px #FFD700, 0 0 20px #FFD700"
+                          : "none",
+                      transition: "all 0.3s ease",
+                    },
+                    "&:hover": {
+                      color: "#fff",
+                      textShadow: "0 0 6px #00f0ff",
+                    },
                   }}
                 >
                   {label}
@@ -80,18 +132,36 @@ const Navbar = () => {
               ))}
           </Box>
 
-          {/* Right - Auth Actions */}
+          {/* 🔒 Auth Buttons */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             {user ? (
               <>
                 <Avatar
-                  sx={{ bgcolor: "#fff", color: "#000", width: 36, height: 36 }}
+                  sx={{
+                    bgcolor: "#00f0ff",
+                    color: "#000",
+                    width: 36,
+                    height: 36,
+                    boxShadow: "0 0 8px #00f0ff",
+                    fontSize: 16,
+                    fontFamily: "'Orbitron', sans-serif",
+                  }}
                 >
                   {user.email?.charAt(0).toUpperCase()}
                 </Avatar>
                 <Typography
-                  variant="body1"
-                  sx={{ color: "#ddd", fontWeight: 500 }}
+                  variant="body2"
+                  sx={{
+                    color: "#ddd",
+                    fontWeight: 500,
+                    fontSize: 14,
+                    fontFamily: "'Orbitron', sans-serif",
+                    maxWidth: 180,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                  title={user.email} // tooltip on hover
                 >
                   {user.email}
                 </Typography>
@@ -103,9 +173,14 @@ const Navbar = () => {
                     fontWeight: "bold",
                     backgroundColor: "#FFD700",
                     color: "#000",
+                    boxShadow: "0 0 10px #FFD700",
+                    fontSize: 14,
+                    paddingX: 2,
+                    fontFamily: "'Orbitron', sans-serif",
                     "&:hover": {
                       backgroundColor: "#e6c200",
                     },
+                    whiteSpace: "nowrap",
                   }}
                 >
                   Logout
@@ -113,36 +188,44 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <Button
-                  component={RouterLink}
-                  to="/login"
-                  sx={{
-                    textTransform: "none",
-                    color: "#fff",
-                    fontWeight: currentPath === "/login" ? "bold" : "normal",
-                    borderBottom:
-                      currentPath === "/login" ? "2px solid #FFD700" : "none",
-                    borderRadius: 0,
-                    "&:hover": { color: "#fff" },
-                  }}
-                >
-                  Login
-                </Button>
-                <Button
-                  component={RouterLink}
-                  to="/signup"
-                  sx={{
-                    textTransform: "none",
-                    color: "#fff",
-                    fontWeight: currentPath === "/signup" ? "bold" : "normal",
-                    borderBottom:
-                      currentPath === "/signup" ? "2px solid #FFD700" : "none",
-                    borderRadius: 0,
-                    "&:hover": { color: "#fff" },
-                  }}
-                >
-                  Signup
-                </Button>
+                {["/login", "/signup"].map((path) => (
+                  <Button
+                    key={path}
+                    component={RouterLink}
+                    to={path}
+                    sx={{
+                      textTransform: "none",
+                      fontSize: 16,
+                      color: "#00f0ff",
+                      fontWeight: currentPath === path ? "bold" : "normal",
+                      position: "relative",
+                      px: 1,
+                      fontFamily: "'Orbitron', sans-serif",
+                      "&::after": {
+                        content: '""',
+                        position: "absolute",
+                        bottom: -6,
+                        left: 0,
+                        width: "100%",
+                        height: "3px",
+                        backgroundColor:
+                          currentPath === path ? "#FFD700" : "transparent",
+                        boxShadow:
+                          currentPath === path
+                            ? "0 0 10px #FFD700, 0 0 20px #FFD700"
+                            : "none",
+                        transition: "all 0.3s ease",
+                      },
+                      "&:hover": {
+                        color: "#fff",
+                        textShadow: "0 0 6px #00f0ff",
+                      },
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {path === "/login" ? "Login" : "Signup"}
+                  </Button>
+                ))}
               </>
             )}
           </Box>
