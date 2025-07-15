@@ -1,8 +1,9 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import ToggleWithData from "../components/DetailCard";
 import { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { ref, onValue, set } from "firebase/database";
+import { Riple   } from "react-loading-indicators";
 
 const SocketViewPage = () => {
   const [switchStates, setSwitchStates] = useState(null);
@@ -27,7 +28,26 @@ const SocketViewPage = () => {
   };
 
   if (!switchStates) {
-    return <p style={{ textAlign: "center", color: "#fff" }}>Loading switch states...</p>;
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "80vh",
+          color: "#fff",
+        }}
+      >
+         <Riple  
+        
+          color="#00f0ff"
+          size="large"
+          
+  />
+       
+      </Box>
+    );
   }
 
   return (
@@ -37,7 +57,7 @@ const SocketViewPage = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
-        flexWrap: "nowrap", // Keep them in a single row
+        flexWrap: "nowrap",
         gap: 3,
         px: 2,
       }}
@@ -50,7 +70,12 @@ const SocketViewPage = () => {
               power: `${1000 + index * 100} W`,
               current: `${10 + index} A`,
               voltage: `${220 + (index % 3) * 5} V`,
-              alarm: index % 3 === 0 ? "No alarm" : index % 3 === 1 ? "Warning" : "Critical",
+              alarm:
+                index % 3 === 0
+                  ? "No alarm"
+                  : index % 3 === 1
+                  ? "Warning"
+                  : "Critical",
             }}
             pinId={pinId}
             switchValue={value}
