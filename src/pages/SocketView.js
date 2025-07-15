@@ -1,7 +1,7 @@
 import { Grid, Container } from "@mui/material";
 import ToggleWithData from "../components/DetailCard";
 
-const SocketView = () => {
+const SocketViewPage = () => {
   const dataList = [
     {
       power: "1200 W",
@@ -49,4 +49,4 @@ const SocketView = () => {
   );
 };
 
-export default SocketView;
+export default SocketViewPage;

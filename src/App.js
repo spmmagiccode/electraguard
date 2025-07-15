@@ -8,10 +8,10 @@ import {
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Link2Page from "./pages/Link2";
-import Link3Page from "./pages/Link3";
-import Link4Page from "./pages/Link4";
-import SocketView from "./pages/SocketView";
+import DataLogsPage from "./pages/DataLogs";
+import PredictionsPage from "./pages/Predictions";
+import AboutPage from "./pages/About";
+import SocketViewPage from "./pages/SocketView";
 import ProtectedRoute from "./components/ProtectedRoute"; // ✅
 
 function App() {
@@ -30,42 +30,35 @@ function App() {
           path="/SocketView"
           element={
             <ProtectedRoute>
-              <SocketView />
+              <SocketViewPage />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/link2"
+          path="/DataLogs"
           element={
             <ProtectedRoute>
-              <Link2Page />
+              <DataLogsPage />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/link3"
+          path="/Predictions"
           element={
             <ProtectedRoute>
-              <Link3Page />
+              <PredictionsPage />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/link4"
+          path="/About"
           element={
             <ProtectedRoute>
-              <Link4Page />
+              <AboutPage />
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/socket"
-          element={
-            <ProtectedRoute>
-              <SocketView />
-            </ProtectedRoute>
-          }
-        />
+        
       </Routes>
     </Router>
   );

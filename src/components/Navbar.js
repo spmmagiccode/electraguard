@@ -37,10 +37,10 @@ const Navbar = () => {
   };
 
   const links = [
-    { label: "Socket Overview", path: "/socket" },
-    { label: "Link2", path: "/link2" },
-    { label: "Link3", path: "/link3" },
-    { label: "Link4", path: "/link4" },
+    { label: "Socket Overview", path: "/SocketView" },
+    { label: "Data Logs", path: "/dataLogs" },
+    { label: "Predictions", path: "/Predictions" },
+    { label: "AboutPage", path: "/About" },
   ];
 
   return (
