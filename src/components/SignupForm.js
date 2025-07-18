@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Box, TextField, Button, Typography, Alert } from "@mui/material";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";  // Make sure your firebase config exports `auth`
+import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
+import { Riple } from "react-loading-indicators";
 
 const SignupForm = () => {
   const [email, setEmail] = useState("");
@@ -29,7 +30,6 @@ const SignupForm = () => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       setSuccess(true);
-      // Navigate to /SocketView after signup success
       navigate("/SocketView");
     } catch (err) {
       setError(err.message);
@@ -37,6 +37,21 @@ const SignupForm = () => {
 
     setIsLoading(false);
   };
+
+  if (isLoading) {
+    return (
+      <Box
+        sx={{
+          height: "80vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Riple color="#00f0ff" size="large" />
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -189,7 +204,7 @@ const SignupForm = () => {
           },
         }}
       >
-        {isLoading ? "Signing up..." : "Sign Up"}
+        Sign Up
       </Button>
 
       {error && (

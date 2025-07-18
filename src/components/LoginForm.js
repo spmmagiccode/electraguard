@@ -3,6 +3,7 @@ import { Box, TextField, Button, Typography, Alert } from "@mui/material";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
+import { Riple } from "react-loading-indicators";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -29,6 +30,21 @@ const LoginForm = () => {
 
     setIsLoading(false);
   };
+
+  if (isLoading) {
+    return (
+      <Box
+        sx={{
+          height: "80vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Riple color="#00f0ff" size="large" />
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -142,7 +158,6 @@ const LoginForm = () => {
         type="submit"
         variant="contained"
         fullWidth
-        disabled={isLoading}
         sx={{
           mt: 3,
           backgroundColor: "#00f0ff",
@@ -158,7 +173,7 @@ const LoginForm = () => {
           },
         }}
       >
-        {isLoading ? "Logging in..." : "Log In"}
+        Log In
       </Button>
 
       {error && (

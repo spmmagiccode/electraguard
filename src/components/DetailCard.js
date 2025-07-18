@@ -35,9 +35,7 @@ const ToggleWithData = ({ data, pinId, switchValue, onToggle }) => {
           textAlign: "center",
           mb: 2,
           color: hasAlarm ? "#ff4d4d" : "#00f0ff",
-          textShadow: hasAlarm
-            ? "0 0 10px #ff4d4d"
-            : "0 0 10px #00f0ff",
+          textShadow: hasAlarm ? "0 0 10px #ff4d4d" : "0 0 10px #00f0ff",
           letterSpacing: 1,
           fontFamily: "'Orbitron', sans-serif",
         }}
@@ -68,9 +66,7 @@ const ToggleWithData = ({ data, pinId, switchValue, onToggle }) => {
             backgroundColor: switchValue === 1 ? "#00f0ff" : "#444",
             transition: "all 0.4s",
             boxShadow:
-              switchValue === 1
-                ? "0 0 10px #00f0ff"
-                : "inset 0 0 6px #000",
+              switchValue === 1 ? "0 0 10px #00f0ff" : "inset 0 0 6px #000",
           }}
         >
           <Box
@@ -140,7 +136,7 @@ const ToggleWithData = ({ data, pinId, switchValue, onToggle }) => {
           {data.power}
         </Typography>
 
-        {[  
+        {[
           { label: "Current", value: data.current },
           { label: "Voltage", value: data.voltage },
           { label: "Alarm", value: data.alarm },
@@ -151,8 +147,7 @@ const ToggleWithData = ({ data, pinId, switchValue, onToggle }) => {
               display: "flex",
               justifyContent: "space-between",
               mb: i < 2 ? 1.2 : 0,
-              color:
-                label === "Alarm" && hasAlarm ? "#ff4d4d" : "#ccc",
+              color: label === "Alarm" && hasAlarm ? "#ff4d4d" : "#ccc",
               fontFamily: "'Orbitron', sans-serif",
             }}
           >
