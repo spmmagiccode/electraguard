@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
-import { firestore } from "../firebase"; // your firestore config
+import { firestore, auth } from "../firebase";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -29,14 +29,17 @@ const DataLogsPage = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch data function
+  // Fetch data function: fetch only current user's sensor_data subcollection
   const fetchData = async () => {
     try {
-      const q = query(
-        collection(firestore, "sensor_data"),
-        orderBy("timestamp", "desc"),
-        limit(50)
-      );
+      const user = auth.currentUser;
+      if (!user) {
+        console.warn("User not logged in");
+        setLoading(false);
+        return;
+      }
+      const userSensorRef = collection(firestore, `users/${user.uid}/sensor_data`);
+      const q = query(userSensorRef, orderBy("timestamp", "desc"), limit(50));
       const querySnapshot = await getDocs(q);
       const data = [];
       querySnapshot.forEach((doc) => {
@@ -60,22 +63,16 @@ const DataLogsPage = () => {
     return () => clearInterval(interval); // cleanup on unmount
   }, []);
 
-  // Prepare timestamps (x-axis labels)
   const labels = logs.map((log) =>
-    log.timestamp
-      ? new Date(log.timestamp.seconds * 1000).toLocaleTimeString()
-      : ""
+    log.timestamp ? new Date(log.timestamp.seconds * 1000).toLocaleTimeString() : ""
   );
 
-  // Helper to create datasets for multiple pins e.g. current1..4
   const makeDatasets = (logs, fieldBase, labelPrefix, color) => {
     const datasets = [];
     for (let i = 1; i <= 4; i++) {
       datasets.push({
         label: `${labelPrefix} ${i}`,
-        data: logs.map(
-          (log) => parseFloat(log[`${fieldBase}${i}`]?.toFixed(3)) || 0
-        ),
+        data: logs.map((log) => parseFloat(log[`${fieldBase}${i}`]?.toFixed(3)) || 0),
         borderColor: color[i - 1],
         backgroundColor: color[i - 1],
         fill: false,
@@ -88,10 +85,8 @@ const DataLogsPage = () => {
     return datasets;
   };
 
-  // Colors for the 4 lines
   const colors = ["#00f0ff", "#00bcd4", "#007788", "#004455"];
 
-  // Chart options
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -127,7 +122,6 @@ const DataLogsPage = () => {
     },
   };
 
-  // Datasets for each chart
   const voltageData = {
     labels,
     datasets: [
@@ -214,8 +208,7 @@ const DataLogsPage = () => {
               sx={{
                 height: 320,
                 p: 2,
-
-                borderRadius: 1, // decreased border-radius
+                borderRadius: 1,
                 background: "linear-gradient(145deg, #222, #111)",
                 boxShadow:
                   "0 4px 8px rgba(0, 255, 255, 0.2), inset 0 0 10px rgba(0, 255, 255, 0.1)",

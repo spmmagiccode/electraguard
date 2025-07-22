@@ -1,9 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import ToggleWithData from "../components/DetailCard";
-import { db, firestore } from "../firebase";
+import { db, firestore, auth } from "../firebase";
 import { ref, onValue, set } from "firebase/database";
-import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  limit,
+} from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 import { Riple } from "react-loading-indicators";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -22,10 +29,26 @@ ChartJS.register(CategoryScale, LinearScale, ArcElement, Tooltip, Legend);
 const SocketViewPage = () => {
   const [switchStates, setSwitchStates] = useState(null);
   const [sensorData, setSensorData] = useState(null);
+  const [userId, setUserId] = useState(null);
   const prevSwitchStates = useRef({});
 
+  // 🔐 Get logged-in user ID
   useEffect(() => {
-    const switchRef = ref(db, "switch");
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        toast.error("User not authenticated");
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // 🔄 Fetch Realtime DB switch states for specific user
+  useEffect(() => {
+    if (!userId) return;
+
+    const switchRef = ref(db, `users/${userId}/switch`);
     const unsubscribe = onValue(switchRef, (snapshot) => {
       const data = snapshot.val();
 
@@ -65,13 +88,16 @@ const SocketViewPage = () => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [userId]);
 
+  // 📥 Fetch latest Firestore sensor data for user
   useEffect(() => {
+    if (!userId) return;
+
     const fetchSensorData = async () => {
       try {
         const q = query(
-          collection(firestore, "sensor_data"),
+          collection(firestore, `users/${userId}/sensor_data`),
           orderBy("timestamp", "desc"),
           limit(1)
         );
@@ -91,10 +117,11 @@ const SocketViewPage = () => {
     fetchSensorData();
     const interval = setInterval(fetchSensorData, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [userId]);
 
   const handleToggle = (pinId, newValue) => {
-    const pinRef = ref(db, `switch/${pinId}`);
+    if (!userId) return;
+    const pinRef = ref(db, `users/${userId}/switch/${pinId}`);
     set(pinRef, newValue).catch(() => {
       toast.error(`❌ Failed to update DEVICE ${pinId}`, {
         style: {
@@ -209,7 +236,7 @@ const SocketViewPage = () => {
         ))}
       </Box>
 
-      {/* Smaller Doughnut Chart - Compact Box */}
+      {/* Doughnut Chart Section */}
       <Box
         sx={{
           mt: 5,
