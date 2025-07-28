@@ -3,13 +3,7 @@ import { Box, Typography } from "@mui/material";
 import ToggleWithData from "../components/DetailCard";
 import { db, firestore, auth } from "../firebase";
 import { ref, onValue, set } from "firebase/database";
-import {
-  collection,
-  getDocs,
-  query,
-  orderBy,
-  limit,
-} from "firebase/firestore";
+import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Riple } from "react-loading-indicators";
 import toast, { Toaster } from "react-hot-toast";
@@ -32,7 +26,6 @@ const SocketViewPage = () => {
   const [userId, setUserId] = useState(null);
   const prevSwitchStates = useRef({});
 
-  // 🔐 Get logged-in user ID
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -44,7 +37,6 @@ const SocketViewPage = () => {
     return () => unsubscribe();
   }, []);
 
-  // 🔄 Fetch Realtime DB switch states for specific user
   useEffect(() => {
     if (!userId) return;
 
@@ -90,7 +82,6 @@ const SocketViewPage = () => {
     return () => unsubscribe();
   }, [userId]);
 
-  // 📥 Fetch latest Firestore sensor data for user
   useEffect(() => {
     if (!userId) return;
 
@@ -150,11 +141,14 @@ const SocketViewPage = () => {
     );
   }
 
+  const voltage = sensorData?.voltage || 0;
+
   const sortedData = Object.entries(switchStates)
     .map(([pinId, value]) => {
       const pinNum = parseInt(pinId.replace("Pin", ""));
-      const power = sensorData?.[`power${pinNum}`] ?? 0;
-      return { pinId, value, pinNum, power };
+      const current = sensorData?.[`current${pinNum}`] || 0;
+      const power = voltage * current;
+      return { pinId, value, pinNum, current, power };
     })
     .sort((a, b) => a.pinNum - b.pinNum);
 
@@ -211,16 +205,14 @@ const SocketViewPage = () => {
           flexDirection: "row",
         }}
       >
-        {sortedData.map(({ pinId, value, pinNum, power }) => (
+        {sortedData.map(({ pinId, value, pinNum, power, current }) => (
           <Box key={pinId} sx={{ flex: "0 0 auto" }}>
             <ToggleWithData
               data={{
                 id: pinId,
                 power: `${power.toFixed(2)} W`,
-                current: `${
-                  sensorData?.[`current${pinNum}`]?.toFixed(2) || 0
-                } A`,
-                voltage: `${sensorData?.voltage?.toFixed(1) || 0} V`,
+                current: `${current.toFixed(2)} A`,
+                voltage: `${voltage.toFixed(1)} V`,
                 alarm:
                   power > 150
                     ? "Critical"

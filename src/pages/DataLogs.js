@@ -29,7 +29,6 @@ const DataLogsPage = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch data function: fetch only current user's sensor_data subcollection
   const fetchData = async () => {
     try {
       const user = auth.currentUser;
@@ -38,14 +37,17 @@ const DataLogsPage = () => {
         setLoading(false);
         return;
       }
-      const userSensorRef = collection(firestore, `users/${user.uid}/sensor_data`);
+      const userSensorRef = collection(
+        firestore,
+        `users/${user.uid}/sensor_data`
+      );
       const q = query(userSensorRef, orderBy("timestamp", "desc"), limit(50));
       const querySnapshot = await getDocs(q);
       const data = [];
       querySnapshot.forEach((doc) => {
         data.push(doc.data());
       });
-      setLogs(data.reverse()); // oldest first for chart
+      setLogs(data.reverse()); // for chronological order
     } catch (err) {
       console.error("Error fetching sensor data logs:", err);
     } finally {
@@ -54,27 +56,31 @@ const DataLogsPage = () => {
   };
 
   useEffect(() => {
-    fetchData(); // initial fetch
-
+    fetchData();
     const interval = setInterval(() => {
       fetchData();
-    }, 10000); // every 10 seconds
-
-    return () => clearInterval(interval); // cleanup on unmount
+    }, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const labels = logs.map((log) =>
-    log.timestamp ? new Date(log.timestamp.seconds * 1000).toLocaleTimeString() : ""
+    log.timestamp
+      ? new Date(log.timestamp.seconds * 1000).toLocaleTimeString()
+      : ""
   );
 
-  const makeDatasets = (logs, fieldBase, labelPrefix, color) => {
+  const colors = ["#00f0ff", "#00bcd4", "#007788", "#004455"];
+
+  const makeCurrentDatasets = () => {
     const datasets = [];
     for (let i = 1; i <= 4; i++) {
       datasets.push({
-        label: `${labelPrefix} ${i}`,
-        data: logs.map((log) => parseFloat(log[`${fieldBase}${i}`]?.toFixed(3)) || 0),
-        borderColor: color[i - 1],
-        backgroundColor: color[i - 1],
+        label: `Current ${i} (A)`,
+        data: logs.map(
+          (log) => parseFloat(log[`current${i}`]?.toFixed(3)) || 0
+        ),
+        borderColor: colors[i - 1],
+        backgroundColor: colors[i - 1],
         fill: false,
         tension: 0.2,
         pointRadius: 3,
@@ -85,7 +91,63 @@ const DataLogsPage = () => {
     return datasets;
   };
 
-  const colors = ["#00f0ff", "#00bcd4", "#007788", "#004455"];
+  const makePowerDatasets = () => {
+    const datasets = [];
+    for (let i = 1; i <= 4; i++) {
+      datasets.push({
+        label: `Power ${i} (W)`,
+        data: logs.map((log) => {
+          const voltage = log.voltage || 0;
+          const current = log[`current${i}`] || 0;
+          return parseFloat((voltage * current).toFixed(3));
+        }),
+        borderColor: colors[i - 1],
+        backgroundColor: colors[i - 1],
+        fill: false,
+        tension: 0.2,
+        pointRadius: 3,
+        pointHoverRadius: 6,
+        pointHoverBorderWidth: 2,
+      });
+    }
+    return datasets;
+  };
+
+  const makeEnergyDatasets = () => {
+    const datasets = [];
+    for (let i = 1; i <= 4; i++) {
+      let lastTimestamp = null;
+      let cumulativeEnergy = 0;
+      const energyPoints = [];
+
+      logs.forEach((log) => {
+        const currentTimestamp = log.timestamp?.seconds || 0;
+        const voltage = log.voltage || 0;
+        const current = log[`current${i}`] || 0;
+
+        if (lastTimestamp !== null) {
+          const interval = currentTimestamp - lastTimestamp; // in seconds
+          const energy = (voltage * current * interval) / 3600000; // Wh to kWh
+          cumulativeEnergy += energy;
+        }
+        lastTimestamp = currentTimestamp;
+        energyPoints.push(parseFloat(cumulativeEnergy.toFixed(4)));
+      });
+
+      datasets.push({
+        label: `Units ${i} (kWh)`,
+        data: energyPoints,
+        borderColor: colors[i - 1],
+        backgroundColor: colors[i - 1],
+        fill: false,
+        tension: 0.2,
+        pointRadius: 3,
+        pointHoverRadius: 6,
+        pointHoverBorderWidth: 2,
+      });
+    }
+    return datasets;
+  };
 
   const options = {
     responsive: true,
@@ -108,9 +170,6 @@ const DataLogsPage = () => {
     plugins: {
       legend: {
         labels: { color: "#00f0ff", font: { family: "Orbitron", size: 12 } },
-      },
-      title: {
-        display: false,
       },
       tooltip: {
         enabled: true,
@@ -141,17 +200,17 @@ const DataLogsPage = () => {
 
   const currentData = {
     labels,
-    datasets: makeDatasets(logs, "current", "Current (A)", colors),
+    datasets: makeCurrentDatasets(),
   };
 
   const powerData = {
     labels,
-    datasets: makeDatasets(logs, "power", "Power (W)", colors),
+    datasets: makePowerDatasets(),
   };
 
-  const energyData = {
+  const unitsData = {
     labels,
-    datasets: makeDatasets(logs, "energy", "Energy (kWh)", colors),
+    datasets: makeEnergyDatasets(),
   };
 
   return (
@@ -201,7 +260,7 @@ const DataLogsPage = () => {
             { title: "Voltage", data: voltageData },
             { title: "Current", data: currentData },
             { title: "Power", data: powerData },
-            { title: "Energy", data: energyData },
+            { title: "Units Graph", data: unitsData },
           ].map(({ title, data }) => (
             <Box
               key={title}
