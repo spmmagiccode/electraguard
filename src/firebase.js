@@ -4,13 +4,13 @@ import { getDatabase } from "firebase/database";
 import { getFirestore } from "firebase/firestore"; // ⬅️ Import Realtime Database
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAbKwUkfNHB0JDaPundGMHyv5m7BECCkjQ",
-  authDomain: "egv1-46e7d.firebaseapp.com",
-  projectId: "egv1-46e7d",
-  storageBucket: "egv1-46e7d.appspot.com", // 🛠️ fixed the typo here: changed `.app` to `.appspot.com`
-  messagingSenderId: "977259524191",
-  appId: "1:977259524191:web:2ff0190b595318122aabea",
-  databaseURL: "https://egv1-46e7d-default-rtdb.firebaseio.com/",
+  apiKey: "AIzaSyB_9JFKJRp8byB1wRhryEfnW-HSv6DQIdk",
+  authDomain: "finalproject-7d0bc.firebaseapp.com",
+  databaseURL: "https://finalproject-7d0bc-default-rtdb.firebaseio.com",
+  projectId: "finalproject-7d0bc",
+  storageBucket: "finalproject-7d0bc.firebasestorage.app",
+  messagingSenderId: "1008219642891",
+  appId: "1:1008219642891:web:667a568b397415811fbb0e",
 };
 
 const app = initializeApp(firebaseConfig);

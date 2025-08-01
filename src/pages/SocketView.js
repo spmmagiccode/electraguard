@@ -205,27 +205,38 @@ const SocketViewPage = () => {
           flexDirection: "row",
         }}
       >
-        {sortedData.map(({ pinId, value, pinNum, power, current }) => (
-          <Box key={pinId} sx={{ flex: "0 0 auto" }}>
-            <ToggleWithData
-              data={{
-                id: pinId,
-                power: `${power.toFixed(2)} W`,
-                current: `${current.toFixed(2)} A`,
-                voltage: `${voltage.toFixed(1)} V`,
-                alarm:
-                  power > 150
-                    ? "Critical"
-                    : power > 125
-                    ? "Warning"
-                    : "No alarm",
-              }}
-              pinId={pinId}
-              switchValue={value}
-              onToggle={handleToggle}
-            />
-          </Box>
-        ))}
+        {sortedData.map(({ pinId, value, pinNum, power, current }) => {
+          let alarm = "No alarm";
+          if (power > 500) {
+            alarm = "Critical";
+          } else if (power > 400) {
+            alarm = "Warning";
+          }
+
+          // Voltage-based alarm overrides
+          if (voltage < 216.5) {
+            alarm = "Low Voltage";
+          } else if (voltage > 243.5) {
+            alarm = "High Voltage";
+          }
+
+          return (
+            <Box key={pinId} sx={{ flex: "0 0 auto" }}>
+              <ToggleWithData
+                data={{
+                  id: pinId,
+                  power: `${power.toFixed(2)} W`,
+                  current: `${current.toFixed(2)} A`,
+                  voltage: `${voltage.toFixed(1)} V`,
+                  alarm,
+                }}
+                pinId={pinId}
+                switchValue={value}
+                onToggle={handleToggle}
+              />
+            </Box>
+          );
+        })}
       </Box>
 
       {/* Doughnut Chart Section */}
