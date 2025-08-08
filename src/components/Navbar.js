@@ -40,6 +40,7 @@ const Navbar = () => {
     { label: "Socket Overview", path: "/SocketView" },
     { label: "Data Logs", path: "/dataLogs" },
     { label: "Predictions", path: "/Predictions" },
+    { label: "Configurations", path: "/Configuration" },
     { label: "AboutPage", path: "/About" },
   ];
 
@@ -70,7 +71,11 @@ const Navbar = () => {
             <Box
               component={RouterLink}
               to="/"
-              sx={{ display: "flex", alignItems: "center", textDecoration: "none" }}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                textDecoration: "none",
+              }}
             >
               <img
                 src="/logo.png"

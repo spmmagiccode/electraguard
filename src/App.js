@@ -12,6 +12,7 @@ import DataLogsPage from "./pages/DataLogs";
 import PredictionsPage from "./pages/Predictions";
 import AboutPage from "./pages/About";
 import SocketViewPage from "./pages/SocketView";
+import ConfigurationPage from "./pages/Configuration";
 import ProtectedRoute from "./components/ProtectedRoute"; // ✅
 
 function App() {
@@ -51,6 +52,14 @@ function App() {
           }
         />
         <Route
+          path="/Configuration"
+          element={
+            <ProtectedRoute>
+              <ConfigurationPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/About"
           element={
             <ProtectedRoute>
@@ -58,7 +67,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-        
       </Routes>
     </Router>
   );
