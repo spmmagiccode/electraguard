@@ -54,16 +54,17 @@ const ConfigurationPage = () => {
         gutterBottom
         sx={{
           color: "#00f0ff",
-          textShadow: "0 0 12px #00f0ff",
-          fontWeight: 700,
+          textShadow: "0 0 10px #00f0ff",
+          fontWeight: 550,
           letterSpacing: 2,
+          fontFamily: "'Orbitron', sans-serif",
         }}
       >
         Configuration Settings
       </Typography>
 
       {/* Voltage Fields */}
-      <Grid container spacing={2} sx={{ mt: 2 }}>
+      <Grid container spacing={2} sx={{ mt: 6 }}>
         <Grid item xs={6}>
           <TextField
             label="Voltage Upper Limit (V)"
@@ -155,7 +156,7 @@ const ConfigurationPage = () => {
               height: "56px", // match TextField height
               "&:hover": {
                 backgroundColor: "#00d6e6",
-                boxShadow: "0 0 25px #00f0ff",
+                boxShadow: "0 0 15px #00f0ff",
               },
             }}
           >
