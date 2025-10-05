@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { firestore, auth } from "../firebase";
 import { Line } from "react-chartjs-2";
+import * as tf from "@tensorflow/tfjs";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -25,8 +26,7 @@ ChartJS.register(
 );
 
 const colors = ["#00f0ff", "#ff8800"]; // Actual: blue, Predicted: orange
-const PREDICTED_POINTS = 10;
-const PREDICT_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+const PREDICT_POINTS = 10;
 
 export default function Predictions() {
   const [logs, setLogs] = useState([]);
@@ -49,8 +49,7 @@ export default function Predictions() {
       const querySnapshot = await getDocs(q);
       const data = [];
       querySnapshot.forEach((doc) => data.push(doc.data()));
-      const orderedData = data.reverse();
-      setLogs(orderedData);
+      setLogs(data.reverse());
     } catch (err) {
       console.error("Error fetching sensor data logs:", err);
     } finally {
@@ -64,46 +63,79 @@ export default function Predictions() {
     return () => clearInterval(interval);
   }, []);
 
-  // Generate predicted points automatically based on last log
-  const generatePredicted = (logsData) => {
+  // Prepare data for TensorFlow model
+  const prepareData = (logsData) => {
+    const inputs = logsData.map((_, idx) => idx);
+    const outputs = logsData.map(
+      (log) =>
+        (log.current1 || 0) * (log.voltage || 0) +
+        (log.current2 || 0) * (log.voltage || 0) +
+        (log.current3 || 0) * (log.voltage || 0) +
+        (log.current4 || 0) * (log.voltage || 0)
+    );
+    return { inputs, outputs };
+  };
+
+  // Generate predictions using TensorFlow.js
+  const generatePredicted = useCallback(async (logsData) => {
     if (!logsData || logsData.length === 0) return;
 
-    const lastLog = logsData[logsData.length - 1];
-    const lastTimestamp = lastLog.timestamp?.seconds * 1000 || Date.now();
+    const { inputs, outputs } = prepareData(logsData);
 
-    let lastTotal =
-      (lastLog.current1 || 0) * (lastLog.voltage || 0) +
-      (lastLog.current2 || 0) * (lastLog.voltage || 0) +
-      (lastLog.current3 || 0) * (lastLog.voltage || 0) +
-      (lastLog.current4 || 0) * (lastLog.voltage || 0);
+    // Convert to tensors
+    const xs = tf.tensor1d(inputs);
+    const ys = tf.tensor1d(outputs);
 
-    const predicted = [];
-    const predictedLabels = [];
+    // Define simple neural network
+    const model = tf.sequential();
+    model.add(
+      tf.layers.dense({ inputShape: [1], units: 50, activation: "relu" })
+    );
+    model.add(tf.layers.dense({ units: 1 }));
+    model.compile({ optimizer: "adam", loss: "meanSquaredError" });
 
-    for (let i = 1; i <= PREDICTED_POINTS; i++) {
-      lastTotal += Math.random() * 20 - 10; // random fluctuation
-      predicted.push(parseFloat(lastTotal.toFixed(2)));
-      predictedLabels.push(
-        new Date(lastTimestamp + i * PREDICT_INTERVAL_MS).toLocaleString()
-      );
-    }
+    // Train model
+    await model.fit(xs, ys, { epochs: 200, verbose: 0 });
 
-    setPredictedValues(predicted);
-    setPredictedPower(predicted[predicted.length - 1]);
-    setAccuracy((Math.random() * 5 + 95).toFixed(2));
+    // Predict next points
+    const lastIndex = inputs[inputs.length - 1];
+    const futureIndices = Array.from(
+      { length: PREDICT_POINTS },
+      (_, i) => lastIndex + i + 1
+    );
+    const futureTensor = tf.tensor1d(futureIndices);
+    const predsTensor = model.predict(futureTensor);
+    const preds = Array.from(predsTensor.dataSync()).map((val) =>
+      parseFloat(val.toFixed(2))
+    );
 
+    // Prepare labels
+    const lastTimestamp =
+      logsData[logsData.length - 1].timestamp?.seconds * 1000 || Date.now();
+    const predictedLabels = futureIndices.map((_, i) =>
+      new Date(lastTimestamp + (i + 1) * 5 * 60 * 1000).toLocaleString()
+    );
+
+    setPredictedValues(preds);
+    setPredictedPower(preds[preds.length - 1]);
+    setAccuracy((Math.random() * 5 + 95).toFixed(2)); // placeholder for accuracy
     setChartLabels([
       ...logsData.map((log) =>
         new Date(log.timestamp.seconds * 1000).toLocaleString()
       ),
       ...predictedLabels,
     ]);
-  };
 
-  // Auto-generate predictions whenever logs change
+    // Clean up tensors
+    xs.dispose();
+    ys.dispose();
+    futureTensor.dispose();
+    predsTensor.dispose();
+  }, []);
+
   useEffect(() => {
     generatePredicted(logs);
-  }, [logs]);
+  }, [logs, generatePredicted]);
 
   const chartData = {
     labels: chartLabels,
@@ -143,34 +175,22 @@ export default function Predictions() {
     maintainAspectRatio: false,
     scales: {
       x: {
-        ticks: {
-          color: "#00f0ff",
-          maxRotation: 90,
-          minRotation: 45,
-          font: { family: "Orbitron" },
-        },
+        ticks: { color: "#00f0ff", maxRotation: 90, minRotation: 45 },
         grid: { color: "#111" },
       },
       y: {
-        ticks: { color: "#00f0ff", font: { family: "Orbitron" } },
+        ticks: { color: "#00f0ff" },
         grid: { color: "#111" },
         beginAtZero: true,
       },
     },
     plugins: {
-      legend: { labels: { color: "#00f0ff", font: { family: "Orbitron" } } },
-      tooltip: {
-        enabled: true,
-        backgroundColor: "#004455",
-        titleFont: { family: "Orbitron", size: 14 },
-        bodyFont: { family: "Orbitron", size: 12 },
-        cornerRadius: 4,
-      },
+      legend: { labels: { color: "#00f0ff" } },
+      tooltip: { enabled: true, backgroundColor: "#004455" },
       title: {
         display: true,
         text: "Total Power Prediction Graph (Live)",
         color: "#00f0ff",
-        font: { size: 18, family: "Orbitron" },
       },
     },
   };
@@ -183,27 +203,19 @@ export default function Predictions() {
         background: "linear-gradient(145deg, #111, #1a1a1a)",
         borderRadius: 3,
         color: "#00f0ff",
-        fontFamily: "Orbitron",
         minHeight: "80vh",
       }}
     >
-      <Typography
-        variant="h5"
-        align="center"
-        gutterBottom
-        sx={{ fontFamily: "Orbitron" }}
-      >
+      <Typography variant="h5" align="center" gutterBottom>
         Total Power Prediction Dashboard (Live)
       </Typography>
 
       {loading ? (
-        <Typography align="center" sx={{ mt: 10, fontFamily: "Orbitron" }}>
+        <Typography align="center" sx={{ mt: 10 }}>
           Loading...
         </Typography>
       ) : logs.length === 0 ? (
-        <Typography align="center" sx={{ fontFamily: "Orbitron" }}>
-          No data available
-        </Typography>
+        <Typography align="center">No data available</Typography>
       ) : (
         <Box sx={{ position: "relative" }}>
           <Box
@@ -215,28 +227,17 @@ export default function Predictions() {
               color: "#00f0ff",
               p: 2,
               borderRadius: 2,
-              boxShadow: "0px 0px 10px #00bcd4",
-              fontFamily: "Orbitron",
             }}
           >
-            <Typography
-              variant="subtitle1"
-              sx={{ fontWeight: "bold", fontFamily: "Orbitron" }}
-            >
+            <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
               Accuracy: {accuracy}%
             </Typography>
-            <Typography variant="subtitle2" sx={{ fontFamily: "Orbitron" }}>
+            <Typography variant="subtitle2">
               Predicted Power: {predictedPower} W
             </Typography>
             <Button
               onClick={() => generatePredicted(logs)}
-              sx={{
-                mt: 1,
-                bgcolor: "#007788",
-                "&:hover": { bgcolor: "#004455" },
-                color: "#fff",
-                fontFamily: "Orbitron",
-              }}
+              sx={{ mt: 1 }}
               variant="contained"
             >
               Predict Now
