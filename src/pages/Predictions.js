@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { firestore, auth } from "../firebase";
 import { Line } from "react-chartjs-2";
 import * as tf from "@tensorflow/tfjs";
+import { Riple } from "react-loading-indicators";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -71,7 +72,7 @@ export default function Predictions() {
       (log.current3 || 0) +
       (log.current4 || 0));
 
-  const generatePredictedWithTF = async (logsData) => {
+  const generatePredictedWithTF = useCallback(async (logsData) => {
     if (!logsData || logsData.length < 6) return [];
 
     setPredicting(true);
@@ -127,52 +128,33 @@ export default function Predictions() {
 
     setPredicting(false);
     return { preds, predictedLabels, acc };
-  };
+  }, []);
 
-  const generatePredicted = async (logsData) => {
-    if (!logsData.length) return;
+  const generatePredicted = useCallback(
+    async (logsData) => {
+      if (!logsData.length) return;
 
-    const { preds, predictedLabels, acc } =
-      (await generatePredictedWithTF(logsData)) || {};
+      const { preds, predictedLabels, acc } =
+        (await generatePredictedWithTF(logsData)) || {};
 
-    if (!preds || !predictedLabels) return;
+      if (!preds || !predictedLabels) return;
 
-    setPredictedValues(preds);
-    setPredictedPower(preds[preds.length - 1]);
-    setAccuracy(acc);
-    setChartLabels([
-      ...logsData.map((log) =>
-        new Date(log.timestamp.seconds * 1000).toLocaleString()
-      ),
-      ...predictedLabels,
-    ]);
-  };
+      setPredictedValues(preds);
+      setPredictedPower(preds[preds.length - 1]);
+      setAccuracy(acc);
+      setChartLabels([
+        ...logsData.map((log) =>
+          new Date(log.timestamp.seconds * 1000).toLocaleString()
+        ),
+        ...predictedLabels,
+      ]);
+    },
+    [generatePredictedWithTF]
+  );
 
   useEffect(() => {
     generatePredicted(logs);
-  }, [logs]);
-
-  const chartData = {
-    labels: chartLabels,
-    datasets: [
-      {
-        label: "Total Power (Actual)",
-        data: logs.map((l) => computePower(l).toFixed(2)),
-        borderColor: colors[0],
-        backgroundColor: colors[0],
-        fill: false,
-        tension: 0.3,
-      },
-      {
-        label: "Total Power (Predicted)",
-        data: Array(logs.length).fill(null).concat(predictedValues),
-        borderColor: colors[1],
-        backgroundColor: colors[1],
-        fill: false,
-        tension: 0.3,
-      },
-    ],
-  };
+  }, [logs, generatePredicted]);
 
   const options = {
     responsive: true,
@@ -184,6 +166,11 @@ export default function Predictions() {
           maxRotation: 90,
           minRotation: 45,
           font: { family: "Orbitron" },
+          callback: function (val, index, ticks) {
+            const total = ticks.length;
+            const showEvery = Math.ceil(total / 5);
+            return index % showEvery === 0 ? this.getLabelForValue(val) : "";
+          },
         },
         grid: { color: "#111" },
       },
@@ -208,6 +195,28 @@ export default function Predictions() {
     },
   };
 
+  const chartData = {
+    labels: chartLabels,
+    datasets: [
+      {
+        label: "Total Power (Actual)",
+        data: logs.map((l) => computePower(l).toFixed(2)),
+        borderColor: colors[0],
+        backgroundColor: colors[0],
+        fill: false,
+        tension: 0.3,
+      },
+      {
+        label: "Total Power (Predicted)",
+        data: Array(logs.length).fill(null).concat(predictedValues),
+        borderColor: colors[1],
+        backgroundColor: colors[1],
+        fill: false,
+        tension: 0.3,
+      },
+    ],
+  };
+
   return (
     <Box
       sx={{
@@ -230,15 +239,29 @@ export default function Predictions() {
       </Typography>
 
       {loading ? (
-        <Typography align="center" sx={{ mt: 10, fontFamily: "Orbitron" }}>
-          Loading...
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "50vh",
+          }}
+        >
+          <Riple color="#00f0ff" size="large" />
+        </Box>
       ) : logs.length === 0 ? (
         <Typography align="center" sx={{ fontFamily: "Orbitron" }}>
           No data available
         </Typography>
       ) : (
-        <Box sx={{ position: "relative", mt: 1 }}>
+        <Box
+          sx={{
+            position: "relative",
+            mt: 1,
+            opacity: loading ? 0 : 1,
+            transition: "opacity 1s ease-in-out",
+          }}
+        >
           <Box
             sx={{
               position: "absolute",

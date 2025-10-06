@@ -37,6 +37,7 @@ const DataLogsPage = () => {
         setLoading(false);
         return;
       }
+
       const userSensorRef = collection(
         firestore,
         `users/${user.uid}/sensor_data`
@@ -47,7 +48,7 @@ const DataLogsPage = () => {
       querySnapshot.forEach((doc) => {
         data.push(doc.data());
       });
-      setLogs(data.reverse()); // for chronological order
+      setLogs(data.reverse());
     } catch (err) {
       console.error("Error fetching sensor data logs:", err);
     } finally {
@@ -126,7 +127,7 @@ const DataLogsPage = () => {
         const current = log[`current${i}`] || 0;
 
         if (lastTimestamp !== null) {
-          const interval = currentTimestamp - lastTimestamp; // in seconds
+          const interval = currentTimestamp - lastTimestamp; // seconds
           const energy = (voltage * current * interval) / 3600000; // Wh to kWh
           cumulativeEnergy += energy;
         }
@@ -158,7 +159,14 @@ const DataLogsPage = () => {
     },
     scales: {
       x: {
-        ticks: { color: "#00f0ff", maxRotation: 90, minRotation: 45 },
+        ticks: {
+          color: "#00f0ff",
+          maxRotation: 45,
+          minRotation: 0,
+          autoSkip: true,
+          maxTicksLimit: 5, // show around 5 labels on x-axis
+          font: { family: "Orbitron", size: 10 },
+        },
         grid: { color: "#111" },
       },
       y: {
@@ -198,20 +206,9 @@ const DataLogsPage = () => {
     ],
   };
 
-  const currentData = {
-    labels,
-    datasets: makeCurrentDatasets(),
-  };
-
-  const powerData = {
-    labels,
-    datasets: makePowerDatasets(),
-  };
-
-  const unitsData = {
-    labels,
-    datasets: makeEnergyDatasets(),
-  };
+  const currentData = { labels, datasets: makeCurrentDatasets() };
+  const powerData = { labels, datasets: makePowerDatasets() };
+  const unitsData = { labels, datasets: makeEnergyDatasets() };
 
   return (
     <Box

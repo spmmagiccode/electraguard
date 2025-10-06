@@ -4,6 +4,7 @@ import { ref, set, get, child } from "firebase/database";
 import { db, auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import toast, { Toaster } from "react-hot-toast";
+import { motion } from "framer-motion";
 
 const ConfigurationPage = () => {
   const [voltageUpper, setVoltageUpper] = useState("");
@@ -91,7 +92,7 @@ const ConfigurationPage = () => {
     try {
       await set(configRef, configData);
       setSuccess(true);
-      toast.success("✅ Settings saved successfully!");
+      toast.success("Settings saved successfully!");
 
       setPlaceholders({
         voltageUpper: configData.voltageUpper,
@@ -119,159 +120,173 @@ const ConfigurationPage = () => {
     fontFamily: "Orbitron",
     "& .MuiOutlinedInput-root": {
       fontFamily: "Orbitron",
-      "& fieldset": { borderColor: "#00f0ff" },
+      "& fieldset": { borderColor: "#00f0ff", borderWidth: 2 },
       "&:hover fieldset": { borderColor: "#00f0ff" },
       "&.Mui-focused fieldset": {
         borderColor: "#00f0ff",
-        boxShadow: "0 0 12px #00f0ff",
+        boxShadow: "0 0 20px #00f0ff",
       },
     },
     "& .MuiInputLabel-root": {
       fontFamily: "Orbitron",
       color: "#00f0ff",
+      fontWeight: "bold",
     },
     "& .MuiInputBase-input": {
       color: "#00f0ff",
       fontFamily: "Orbitron",
+      letterSpacing: 1,
     },
   };
 
   return (
     <>
       <Toaster position="top-right" />
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{
-          maxWidth: 700,
-          margin: "80px auto",
-          padding: 4,
-          borderRadius: 4,
-          background: "rgba(0, 0, 0, 0.6)",
-          backdropFilter: "blur(10px)",
-          boxShadow: "0 0 20px rgba(0,255,255,0.1)",
-          fontFamily: "Orbitron",
-          color: "#fff",
-          textShadow: "0 0 5px #00f0ff",
-        }}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
       >
-        <Typography
-          variant="h5"
-          align="center"
-          gutterBottom
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
           sx={{
-            color: "#00f0ff",
-            textShadow: "0 0 10px #00f0ff",
-            fontWeight: 550,
-            letterSpacing: 2,
+            maxWidth: 700,
+            margin: "80px auto",
+            padding: 5,
+            borderRadius: 4,
+            background: "rgba(0, 0, 0, 0.5)",
+            backdropFilter: "blur(12px)",
+            boxShadow: "0 0 40px rgba(0,255,255,0.2)",
+            border: "1px solid #00f0ff",
             fontFamily: "Orbitron",
+            color: "#00f0ff",
+            textShadow: "0 0 8px #00f0ff",
+            transition: "all 0.5s ease",
           }}
         >
-          Configuration Settings
-        </Typography>
+          <Typography
+            variant="h4"
+            align="center"
+            gutterBottom
+            sx={{
+              color: "#00f0ff",
+              textShadow: "0 0 20px #00f0ff",
+              fontWeight: 600,
+              letterSpacing: 3,
+              fontFamily: "Orbitron",
+              mb: 6,
+            }}
+          >
+            Configuration
+          </Typography>
 
-        <Grid container spacing={2} sx={{ mt: 6 }}>
-          <Grid item xs={6}>
-            <TextField
-              label="Voltage Upper Limit (V)"
-              type="number"
-              value={voltageUpper}
-              onChange={(e) => setVoltageUpper(e.target.value)}
-              fullWidth
-              placeholder={
-                placeholders.voltageUpper || "Enter upper voltage limit"
-              }
-              sx={sharedTextFieldStyle}
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label="Voltage Lower Limit (V)"
-              type="number"
-              value={voltageLower}
-              onChange={(e) => setVoltageLower(e.target.value)}
-              fullWidth
-              placeholder={
-                placeholders.voltageLower || "Enter lower voltage limit"
-              }
-              sx={sharedTextFieldStyle}
-            />
-          </Grid>
-        </Grid>
-
-        <Typography
-          variant="subtitle1"
-          sx={{
-            mt: 4,
-            mb: 1,
-            color: "#00f0ff",
-            fontWeight: "bold",
-            letterSpacing: 1,
-            fontFamily: "Orbitron",
-          }}
-        >
-          Current Limits for 4 Slots (A)
-        </Typography>
-
-        <Grid container spacing={2}>
-          {currentLimits.map((value, index) => (
-            <Grid item xs={3} key={index}>
+          <Grid container spacing={3}>
+            <Grid item xs={6}>
               <TextField
-                label={`Slot ${index + 1}`}
+                label="Voltage Upper Limit (V)"
                 type="number"
-                value={value}
-                onChange={(e) => handleCurrentChange(index, e.target.value)}
+                value={voltageUpper}
+                onChange={(e) => setVoltageUpper(e.target.value)}
                 fullWidth
-                placeholder={
-                  placeholders.currentLimits[index] ||
-                  `Slot ${index + 1} current`
-                }
+                placeholder={placeholders.voltageUpper || "Enter upper voltage"}
                 sx={sharedTextFieldStyle}
               />
             </Grid>
-          ))}
-        </Grid>
-
-        <Grid container spacing={2} sx={{ mt: 4 }}>
-          <Grid item xs={6}>
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              sx={{
-                backgroundColor: "#00f0ff",
-                color: "#000",
-                fontWeight: "bold",
-                fontSize: 16,
-                boxShadow: "0 0 20px #00f0ff",
-                "&:hover": {
-                  backgroundColor: "#00d6e6",
-                  boxShadow: "0 0 15px #00f0ff",
-                },
-                height: "56px",
-                fontFamily: "Orbitron",
-              }}
-            >
-              Save Settings
-            </Button>
+            <Grid item xs={6}>
+              <TextField
+                label="Voltage Lower Limit (V)"
+                type="number"
+                value={voltageLower}
+                onChange={(e) => setVoltageLower(e.target.value)}
+                fullWidth
+                placeholder={placeholders.voltageLower || "Enter lower voltage"}
+                sx={sharedTextFieldStyle}
+              />
+            </Grid>
           </Grid>
-          <Grid item xs={6} />
-        </Grid>
 
-        {success && (
-          <Alert
-            severity="success"
+          <Typography
+            variant="subtitle1"
             sx={{
-              mt: 2,
+              mt: 4,
+              mb: 2,
+              color: "#00f0ff",
               fontWeight: "bold",
               letterSpacing: 1,
               fontFamily: "Orbitron",
             }}
           >
-            Settings saved successfully!
-          </Alert>
-        )}
-      </Box>
+            Current Limits (A) for 4 Slots
+          </Typography>
+
+          <Grid container spacing={2}>
+            {currentLimits.map((value, index) => (
+              <Grid item xs={3} key={index}>
+                <TextField
+                  label={`Slot ${index + 1}`}
+                  type="number"
+                  value={value}
+                  onChange={(e) => handleCurrentChange(index, e.target.value)}
+                  fullWidth
+                  placeholder={
+                    placeholders.currentLimits[index] || `Slot ${index + 1}`
+                  }
+                  sx={sharedTextFieldStyle}
+                />
+              </Grid>
+            ))}
+          </Grid>
+
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{
+              width: "300",
+              mt: 5,
+              py: 1.8,
+              fontSize: 13,
+              fontWeight: 500,
+              background: "linear-gradient(90deg, #00f0ff, #00d6e6)",
+              color: "#000",
+              boxShadow: "0 0 10px #00f0ff",
+              borderRadius: 1,
+              transition: "all 0.3s ease",
+              "&:hover": {
+                background: "linear-gradient(90deg, #00d6e6, #00aabb)",
+                boxShadow: "0 0 20px #00f0ff",
+              },
+              fontFamily: "Orbitron",
+            }}
+          >
+            Save Settings
+          </Button>
+
+          {success && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1 }}
+            >
+              <Alert
+                severity="success"
+                sx={{
+                  mt: 3,
+                  fontWeight: "bold",
+                  letterSpacing: 1,
+                  fontFamily: "Orbitron",
+                  background: "rgba(0, 255, 255, 0.1)",
+                  border: "1px solid #00f0ff",
+                  color: "#00f0ff",
+                  textShadow: "0 0 5px #00f0ff",
+                }}
+              >
+                Settings saved successfully!
+              </Alert>
+            </motion.div>
+          )}
+        </Box>
+      </motion.div>
     </>
   );
 };
