@@ -238,11 +238,11 @@ export default function Predictions() {
           No data available
         </Typography>
       ) : (
-        <Box sx={{ position: "relative" }}>
+        <Box sx={{ position: "relative", mt: 1 }}>
           <Box
             sx={{
               position: "absolute",
-              top: 10,
+              top: 0,
               right: 10,
               bgcolor: "#003b50",
               color: "#00f0ff",
