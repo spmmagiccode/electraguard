@@ -24,8 +24,13 @@ const SocketViewPage = () => {
   const [switchStates, setSwitchStates] = useState(null);
   const [sensorData, setSensorData] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [config, setConfig] = useState({
+    voltageUpper: 243.5,
+    voltageLower: 216.5,
+  });
   const prevSwitchStates = useRef({});
 
+  // Listen to Auth State
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -37,6 +42,7 @@ const SocketViewPage = () => {
     return () => unsubscribe();
   }, []);
 
+  // Listen to Switch States
   useEffect(() => {
     if (!userId) return;
 
@@ -82,6 +88,7 @@ const SocketViewPage = () => {
     return () => unsubscribe();
   }, [userId]);
 
+  // Fetch Latest Sensor Data from Firestore
   useEffect(() => {
     if (!userId) return;
 
@@ -110,6 +117,23 @@ const SocketViewPage = () => {
     return () => clearInterval(interval);
   }, [userId]);
 
+  // Fetch Voltage Limits from Realtime DB Configuration
+  useEffect(() => {
+    if (!userId) return;
+    const configRef = ref(db, `users/${userId}/configuration`);
+    const unsubscribe = onValue(configRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setConfig({
+          voltageUpper: Number(data.voltageUpper) || 243.5,
+          voltageLower: Number(data.voltageLower) || 216.5,
+        });
+      }
+    });
+    return () => unsubscribe();
+  }, [userId]);
+
+  // Toggle Handler
   const handleToggle = (pinId, newValue) => {
     if (!userId) return;
     const pinRef = ref(db, `users/${userId}/switch/${pinId}`);
@@ -124,6 +148,7 @@ const SocketViewPage = () => {
     });
   };
 
+  // Loading Indicator
   if (!switchStates || !sensorData) {
     return (
       <Box
@@ -207,16 +232,11 @@ const SocketViewPage = () => {
       >
         {sortedData.map(({ pinId, value, pinNum, power, current }) => {
           let alarm = "No alarm";
-          if (power > 500) {
-            alarm = "Critical";
-          } else if (power > 400) {
-            alarm = "Warning";
-          }
 
-          // Voltage-based alarm overrides
-          if (voltage < 216.5) {
+          // Voltage-based alarm dynamically using config
+          if (voltage < config.voltageLower) {
             alarm = "Low Voltage";
-          } else if (voltage > 243.5) {
+          } else if (voltage > config.voltageUpper) {
             alarm = "High Voltage";
           }
 
