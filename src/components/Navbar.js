@@ -78,7 +78,7 @@ const Navbar = () => {
               }}
             >
               <img
-                src="/logo.png"
+                src={`${process.env.PUBLIC_URL}/logo.png`}
                 alt="Logo"
                 style={{ width: 56, height: 56, marginRight: 12 }}
               />
