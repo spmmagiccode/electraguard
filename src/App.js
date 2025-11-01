@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -13,13 +8,15 @@ import PredictionsPage from "./pages/Predictions";
 import AboutPage from "./pages/About";
 import SocketViewPage from "./pages/SocketView";
 import ConfigurationPage from "./pages/Configuration";
-import ProtectedRoute from "./components/ProtectedRoute"; // ✅
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
-    <Router>
+    // ✅ Important for GitHub Pages
+    <BrowserRouter basename={process.env.PUBLIC_URL}>
       <Navbar />
       <Routes>
+        {/* Redirect base path to login */}
         <Route path="/" element={<Navigate to="/login" replace />} />
 
         {/* Public Routes */}
@@ -67,8 +64,11 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Optional: catch-all redirect */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 
