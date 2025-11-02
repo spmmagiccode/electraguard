@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/electraguard/static/js/main.bd21b6c2.js",
+    "main.js": "/electraguard/static/js/main.940b721c.js",
     "index.html": "/electraguard/index.html",
-    "main.bd21b6c2.js.map": "/electraguard/static/js/main.bd21b6c2.js.map"
+    "main.940b721c.js.map": "/electraguard/static/js/main.940b721c.js.map"
   },
   "entrypoints": [
-    "static/js/main.bd21b6c2.js"
+    "static/js/main.940b721c.js"
   ]
 }
