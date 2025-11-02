@@ -51,7 +51,7 @@ export default function AboutUs() {
           >
             <Box
               component="img"
-              src={`${process.env.PUBLIC_URL}/app.png`}
+              src={`${process.env.PUBLIC_URL}/app.PNG`}
               alt="App Preview"
               sx={{
                 width: "100%",
@@ -178,7 +178,7 @@ export default function AboutUs() {
           >
             <Box
               component="img"
-              src={`${process.env.PUBLIC_URL}/manual.png`}
+              src={`${process.env.PUBLIC_URL}/manual.PNG`}
               alt="Manual Preview"
               sx={{
                 width: "100%",
