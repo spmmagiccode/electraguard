@@ -28,6 +28,7 @@ const SocketViewPage = () => {
     voltageUpper: 243.5,
     voltageLower: 216.5,
   });
+  const [currentLimits, setCurrentLimits] = useState({});
   const prevSwitchStates = useRef({});
 
   // Listen to Auth State
@@ -117,7 +118,7 @@ const SocketViewPage = () => {
     return () => clearInterval(interval);
   }, [userId]);
 
-  // Fetch Voltage Limits from Realtime DB Configuration
+  // Fetch Voltage and Current Limits from Realtime DB Configuration
   useEffect(() => {
     if (!userId) return;
     const configRef = ref(db, `users/${userId}/configuration`);
@@ -128,6 +129,15 @@ const SocketViewPage = () => {
           voltageUpper: Number(data.voltageUpper) || 243.5,
           voltageLower: Number(data.voltageLower) || 216.5,
         });
+
+        // Extract current limits dynamically
+        const currentLimitsData = {};
+        for (let i = 1; i <= 10; i++) {
+          if (data[`currentLimit${i}`] !== undefined) {
+            currentLimitsData[`Pin${i}`] = Number(data[`currentLimit${i}`]);
+          }
+        }
+        setCurrentLimits(currentLimitsData);
       }
     });
     return () => unsubscribe();
@@ -231,14 +241,23 @@ const SocketViewPage = () => {
         }}
       >
         {sortedData.map(({ pinId, value, pinNum, power, current }) => {
-          let alarm = "No alarm";
+          let alarmMessages = [];
 
-          // Voltage-based alarm dynamically using config
+          // Voltage-based alarm
           if (voltage < config.voltageLower) {
-            alarm = "Low Voltage";
+            alarmMessages.push("Low Voltage");
           } else if (voltage > config.voltageUpper) {
-            alarm = "High Voltage";
+            alarmMessages.push("High Voltage");
           }
+
+          // Current-based alarm (only High Current)
+          const limit = currentLimits[pinId];
+          if (limit !== undefined && current > limit) {
+            alarmMessages.push("High Current");
+          }
+
+          const alarm =
+            alarmMessages.length > 0 ? alarmMessages.join(" & ") : "No alarm";
 
           return (
             <Box key={pinId} sx={{ flex: "0 0 auto" }}>

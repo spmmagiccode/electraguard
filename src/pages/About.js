@@ -147,8 +147,14 @@ export default function AboutUs() {
                     boxShadow: "0 0 25px #39FF14",
                   },
                 }}
+                onClick={() =>
+                  window.open(
+                    "https://qr1.me-qr.com/mobile/pdf/b2aab450-f286-46c4-8a8d-3037726d0763",
+                    "_blank"
+                  )
+                }
               >
-                Download User Manual
+                User Manual
               </Button>
             </Box>
           </motion.div>

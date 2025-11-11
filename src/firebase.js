@@ -4,13 +4,14 @@ import { getDatabase } from "firebase/database";
 import { getFirestore } from "firebase/firestore"; // ⬅️ Import Realtime Database
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB_9JFKJRp8byB1wRhryEfnW-HSv6DQIdk",
-  authDomain: "finalproject-7d0bc.firebaseapp.com",
-  databaseURL: "https://finalproject-7d0bc-default-rtdb.firebaseio.com",
-  projectId: "finalproject-7d0bc",
-  storageBucket: "finalproject-7d0bc.firebasestorage.app",
-  messagingSenderId: "1008219642891",
-  appId: "1:1008219642891:web:667a568b397415811fbb0e",
+  databaseURL: "https://electraguard-e0f02-default-rtdb.firebaseio.com",
+  apiKey: "AIzaSyBfVIm2SJP0C_YshYTmPVxR0n7B1okxwUo",
+  authDomain: "electraguard-e0f02.firebaseapp.com",
+  projectId: "electraguard-e0f02",
+  storageBucket: "electraguard-e0f02.firebasestorage.app",
+  messagingSenderId: "362016057053",
+  appId: "1:362016057053:web:095e27d067e208260d1d34",
+  measurementId: "G-3XWMLESRRR",
 };
 
 const app = initializeApp(firebaseConfig);
