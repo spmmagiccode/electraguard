@@ -191,7 +191,7 @@ const SocketViewPage = () => {
   const totalPower = sortedData.reduce((sum, item) => sum + item.power, 0);
 
   const chartData = {
-    labels: sortedData.map((item) => item.pinId),
+    labels: sortedData.map((item) => `S ${item.pinId.replace(/\D/g, "")}`),
     datasets: [
       {
         data: powerValues,

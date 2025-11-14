@@ -64,11 +64,14 @@ const DataLogsPage = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const labels = logs.map((log) =>
-    log.timestamp
-      ? new Date(log.timestamp.seconds * 1000).toLocaleTimeString()
-      : ""
-  );
+  // 🔥 UPDATED — show Date + Time
+  const labels = logs.map((log) => {
+    if (!log.timestamp) return "";
+    const d = new Date(log.timestamp.seconds * 1000);
+    const date = d.toLocaleDateString();
+    const time = d.toLocaleTimeString();
+    return `${date} ${time}`;
+  });
 
   const colors = ["#00f0ff", "#00bcd4", "#007788", "#004455"];
 
@@ -164,7 +167,7 @@ const DataLogsPage = () => {
           maxRotation: 45,
           minRotation: 0,
           autoSkip: true,
-          maxTicksLimit: 5, // show around 5 labels on x-axis
+          maxTicksLimit: 3,
           font: { family: "Orbitron", size: 10 },
         },
         grid: { color: "#111" },

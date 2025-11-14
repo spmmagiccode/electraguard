@@ -40,7 +40,7 @@ const ToggleWithData = ({ data, pinId, switchValue, onToggle }) => {
           fontFamily: "'Orbitron', sans-serif",
         }}
       >
-        DEVICE {pinId}
+        Socket {pinId.replace(/\D/g, "")}
       </Typography>
 
       {/* Toggle */}
